@@ -2,6 +2,10 @@
 import json
 import sys
 
+from kython.misc import import_from
+
+instapaper = import_from('/L/zzz_syncthing/soft/backup/instapaper/', 'instapaper')
+
 from instapaper import Instapaper
 
 from instapaper_secrets import *
