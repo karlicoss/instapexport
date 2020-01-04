@@ -39,17 +39,14 @@ def get_json(
 
 
 def login(oauth_id: str, oauth_secret: str):
-    """
-    Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
-    https://www.instapaper.com/main/request_oauth_consumer_token
-    """
-    USERNAME = None
-    PASSWORD = None
+    print("You'll need your username/password once in order to get oauth token")
+    username = input('Your username: ')
+    password = input('Your password: ')
 
     api = instapaper.Instapaper(oauth_id, oauth_secret)
-    odata = api.login(USERNAME, PASSWORD)
-    print("paste this into your secrets file")
-    print(repr(odata))
+    odata = api.login(username, password)
+    print("Now paste this into your secrets file")
+    print(odata)
 
 
 def main():
@@ -62,7 +59,8 @@ def main():
         'oauth_token_secret',
     ])
     parser.add_argument('--login', action='store_true', help='''
-    TODO
+    Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
+    https://www.instapaper.com/main/request_oauth_consumer_token
     ''')
     args = parser.parse_args()
 
