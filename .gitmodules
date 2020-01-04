@@ -1,0 +1,3 @@
+[submodule "instapaper"]
+	path = modules/instapaper
+	url = git@github.com:karlicoss/instapaper.git
