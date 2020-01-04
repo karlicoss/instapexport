@@ -6,6 +6,8 @@ from kython.misc import import_from
 
 instapaper = import_from('/L/zzz_syncthing/soft/backup/instapaper/', 'instapaper')
 
+instapaper._API_VERSION_ = "api/1.1"
+
 from instapaper import Instapaper
 
 from instapaper_secrets import *
@@ -32,7 +34,7 @@ res = {
     'highlights': [],
 }
 for f in ['unread', 'archive']:
-    bm = api.bookmarks_raw(folder=f, limit=LIMIT)
+    bm = api.bookmarks_raw(folder=f, limit=LIMIT, have=None)
     del bm['user']
     for k, l in bm.items():
         res[k].extend(l)
