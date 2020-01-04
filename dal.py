@@ -2,7 +2,8 @@
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Iterator, Optional
+from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Optional
+import pytz
 
 import dal_helper
 from dal_helper import Json, PathIsh, Res
@@ -14,33 +15,66 @@ Bid = str
 Hid = str
 
 
+def _make_dt(ts: float) -> datetime:
+    return pytz.utc.localize(datetime.utcfromtimestamp(ts))
+
+
 class Highlight(NamedTuple):
     raw: Json
-    # dt: datetime # utc
-    # uid: Hid
-    # bid: Bid
     # text: str
     # note: Optional[str]
-    # url: str
-    # title: str
+
+    @property
+    def dt(self) -> datetime:
+        "UTC"
+        return _make_dt(self.raw['time'])
+
+    @property
+    def hid(self) -> Bid:
+        return str(self.raw['highlight_id'])
+
+    @property
+    def bid(self) -> Bid:
+        return str(self.raw['bookmark_id'])
 
     @property
     def instapaper_link(self) -> str:
-        return f'https://www.instapaper.com/read/{self.bid}/{self.uid}'
+        return f'https://www.instapaper.com/read/{self.bid}/{self.hid}'
 
 
+# TODO use cproprety here? generally might be interesting to benchmark/profile
 class Bookmark(NamedTuple):
     raw: Json
-    # bid: Bid
     # dt: datetime # utc
-    # url: str
-    # title: str
+
+    @property
+    def bid(self) -> Bid:
+        return str(self.raw['bookmark_id'])
+
+    @property
+    def url(self) -> str:
+        return self.raw['url']
+
+    @property
+    def title(self) -> str:
+        return self.raw['title']
 
     @property
     def instapaper_link(self) -> str:
         return f'https://www.instapaper.com/read/{self.bid}'
 
 
+class Page(NamedTuple):
+    bookmark: Bookmark
+    highlights: List[Highlight]
+
+    @property
+    def url(self) -> str:
+        return self.bookmark.url
+
+    @property
+    def title(self) -> str:
+        return self.bookmark.title
 
 class DAL:
     def __init__(self, sources: Sequence[PathIsh]) -> None:
@@ -90,13 +124,36 @@ class DAL:
     def highlights(self) -> Dict[Hid, Highlight]:
         return self._get_all()[1]
 
+    def pages(self) -> List[Page]:
+        bks, hls = self._get_all()
+        page2hls: Dict[Bid, List[Highlight]] = {bid: [] for bid in bks}
+        for hid, h in hls.items():
+            page2hls[h.bid].append(h)
+
+        # TODO sort pages too?
+        pages_ = [
+            Page(
+                bookmark=bks[page_bid],
+                highlights=list(sorted(page_hls, key=lambda b: b.dt))
+            )
+            for page_bid, page_hls in page2hls.items()
+        ]
+        return pages_
 
 
 def demo(dao: DAL) -> None:
     # TODO split errors properly? move it to dal_helper?
-    highlights = list(w for w in dao.highlights() if not isinstance(w, Exception))
+    # highlights = list(w for w in dao.highlights() if not isinstance(w, Exception))
 
-    print(f"Parsed {len(highlights)} highlights")
+    pages = dao.pages()
+    print(f"Parsed {len(pages)} pages")
+
+    from collections import Counter
+    from pprint import pprint
+    common = Counter({(x.url, x.title): len(x.highlights) for x in pages}).most_common(10)
+    print("10 most highlighed pages:")
+    for (url, title), count in common:
+        print(f'{count:4d} {url} "{title}"')
 
 
 if __name__ == '__main__':
