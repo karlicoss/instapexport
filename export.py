@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+from typing import List
 
 from export_helper import Json
 
@@ -15,22 +16,26 @@ def get_json(
         oauth_token: str,
         oauth_token_secret: str,
 ) -> Json:
-    LIMIT = 500 # TODO FIMXE
+    LIMIT = 500
+    # default limit is something stupid
+    # TODO need merging logic in DAL
 
     api = instapaper.Instapaper(oauth_id, oauth_secret)
     api.login_with_token(oauth_token, oauth_token_secret)
 
-    res: Json = {
-        'bookmarks': [],
-        'highlights': [],
+    user_folders = api.folders()
+    folders: List[str] = [
+        'unread', 'archive', 'starred', # default, as per api docs
+        *(str(f['folder_id']) for f in user_folders),
+    ]
+    bookmarks = {}
+    for f in folders:
+        fbookmarks = api.bookmarks_raw(folder=f, limit=LIMIT, have=None)
+        bookmarks[f] = fbookmarks
+    return {
+        'folders': user_folders,
+        'bookmarks': bookmarks,
     }
-    for f in ['unread', 'archive']:
-        bm = api.bookmarks_raw(folder=f, limit=LIMIT, have=None)
-        # TODO FIXME don't mess with them!
-        del bm['user'] # TODO ???
-        for k, l in bm.items():
-            res[k].extend(l)
-    return res
 
 
 def login(oauth_id: str, oauth_secret: str):
