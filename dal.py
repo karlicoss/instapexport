@@ -29,8 +29,6 @@ def _make_dt(ts: float) -> datetime:
 
 class Highlight(NamedTuple):
     raw: Json
-    # text: str
-    # note: Optional[str]
 
     @property
     def dt(self) -> datetime:
@@ -46,6 +44,14 @@ class Highlight(NamedTuple):
         return str(self.raw['bookmark_id'])
 
     @property
+    def text(self) -> str:
+        return self.raw['text']
+
+    @property
+    def note(self) -> Optional[str]:
+        return self.raw['note']
+
+    @property
     def instapaper_link(self) -> str:
         return f'https://www.instapaper.com/read/{self.bid}/{self.hid}'
 
@@ -53,11 +59,15 @@ class Highlight(NamedTuple):
 # TODO use cproprety here? generally might be interesting to benchmark/profile
 class Bookmark(NamedTuple):
     raw: Json
-    # dt: datetime # utc
 
     @property
     def bid(self) -> Bid:
         return str(self.raw['bookmark_id'])
+
+    @property
+    def dt(self) -> datetime:
+        "UTC"
+        return _make_dt(self.raw['time'])
 
     @property
     def url(self) -> str:
@@ -77,12 +87,17 @@ class Page(NamedTuple):
     highlights: List[Highlight]
 
     @property
+    def dt(self) -> datetime:
+        return self.bookmark.dt
+
+    @property
     def url(self) -> str:
         return self.bookmark.url
 
     @property
     def title(self) -> str:
         return self.bookmark.title
+
 
 class DAL:
     def __init__(self, sources: Sequence[PathIsh]) -> None:
@@ -138,7 +153,6 @@ class DAL:
         for hid, h in hls.items():
             page2hls[h.bid].append(h)
 
-        # TODO sort pages too?
         pages_ = [
             Page(
                 bookmark=bks[page_bid],
@@ -146,7 +160,7 @@ class DAL:
             )
             for page_bid, page_hls in page2hls.items()
         ]
-        return pages_
+        return list(sorted(pages_, key=lambda p: p.dt))
 
 
 def demo(dao: DAL) -> None:
