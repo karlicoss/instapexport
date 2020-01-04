@@ -5,8 +5,16 @@ from datetime import datetime
 from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Optional
 import pytz
 
-import dal_helper
-from dal_helper import Json, PathIsh, Res
+# TODO ugh. how to make it both compatible with 'main' and 'library' styles??
+# also this confuses mypy/pylint. UGH!
+if __name__ == '__main__':
+    import dal_helper
+    from dal_helper import *
+else:
+    from . import dal_helper
+    from .dal_helper import *
+# TOOD ugh. a bit crap, this doesn't really work...
+# from dal_helper import Json, PathIsh, Res
 
 
 logger = dal_helper.logger('endoexport', level='debug')
