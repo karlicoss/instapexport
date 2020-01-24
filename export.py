@@ -38,10 +38,12 @@ def get_json(
     }
 
 
-def login(oauth_id: str, oauth_secret: str):
-    print("You'll need your username/password once in order to get oauth token")
-    username = input('Your username: ')
-    password = input('Your password: ')
+def login():
+    print("NOTE: You'll need your username/password once in order to get oauth_token")
+    oauth_id     = input('Your ouath_id: ')
+    oauth_secret = input('Your ouath_secret: ')
+    username     = input('Your username: ')
+    password     = input('Your password: ')
 
     api = instapaper.Instapaper(oauth_id, oauth_secret)
     odata = api.login(username, password)
@@ -50,30 +52,42 @@ def login(oauth_id: str, oauth_secret: str):
 
 
 def main():
-    from export_helper import setup_parser
-    parser = argparse.ArgumentParser("Tool to export your personal Instapaper data")
-    setup_parser(parser=parser, params=[
-        'oauth_id',
-        'oauth_secret',
-        'oauth_token',
-        'oauth_token_secret',
-    ])
-    parser.add_argument('--login', action='store_true', help='''
-    Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
-    https://www.instapaper.com/main/request_oauth_consumer_token
-    ''')
+    parser = make_parser()
     args = parser.parse_args()
 
     params = args.params
     dumper = args.dumper
 
     if args.login:
-        login(**params)
+        login()
         return
 
     j = get_json(**params)
     js = json.dumps(j, indent=1, ensure_ascii=False, sort_keys=True)
     dumper(js)
+
+
+def make_parser():
+    from export_helper import setup_parser, Parser
+    parser = Parser("""
+Export your personal Instapaper data: bookmarked articles and highlights.
+""")
+    setup_parser(
+        parser=parser,
+        params=[
+            'oauth_id',
+            'oauth_secret',
+            'oauth_token',
+            'oauth_token_secret',
+        ],
+        extra_usage='''
+You can also import ~export.py~ as a module and call ~get_json~ function directly to get raw JSON.
+''')
+    parser.add_argument('--login', action='store_true', help='''
+    Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
+    https://www.instapaper.com/main/request_oauth_consumer_token
+    ''')
+    return parser
 
 
 if __name__ == '__main__':

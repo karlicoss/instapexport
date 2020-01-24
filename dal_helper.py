@@ -78,7 +78,11 @@ def main(*, DAL, demo=None, single_source=False):
         if '*' in args.source and not args.no_glob:
             sources = glob(args.source)
         else:
-            sources = [args.source]
+            ps = Path(args.source)
+            if ps.is_dir():
+                sources = list(sorted(ps.iterdir())) # hopefully, makes sense?
+            else:
+                sources = [ps]
         dal = DAL(sources)
     # logger.debug('using %s', sources)
 
