@@ -14,7 +14,6 @@ if __name__ == '__main__':
 from . import dal_helper  # type: ignore[no-redef]
 from .dal_helper import Json, PathIsh, Res
 
-
 logger = dal_helper.logger('endoexport', level='debug')
 
 Bid = str
@@ -28,6 +27,7 @@ def _make_dt(ts: float) -> datetime:
 class Highlight(NamedTuple):
     raw: Json
 
+    # TODO shit. maybe it's not utc...
     @property
     def dt(self) -> datetime:
         "UTC"
@@ -51,7 +51,7 @@ class Highlight(NamedTuple):
 
     @property
     def instapaper_link(self) -> str:
-        return f'https://www.instapaper.com/read/{self.bid}/{self.hid}'
+        return f'https://instapaper.com/read/{self.bid}/{self.hid}'
 
 
 # TODO use cproprety here? generally might be interesting to benchmark/profile
@@ -77,7 +77,7 @@ class Bookmark(NamedTuple):
 
     @property
     def instapaper_link(self) -> str:
-        return f'https://www.instapaper.com/read/{self.bid}'
+        return f'https://instapaper.com/read/{self.bid}'
 
 
 class Page(NamedTuple):
@@ -113,6 +113,7 @@ class DAL:
         all_hls = {}
         all_bks = {}
 
+        # TODO not sure if necessary to sort here.. get_files handles this already
         for f in sorted(self.sources):
             j = json.loads(f.read_text())
 
@@ -139,6 +140,7 @@ class DAL:
 
     # TODO support folders? I don't use them so let it be homework for other people..
 
+    # TODO shit. should that be a list instead?
     def bookmarks(self) -> Dict[Bid, Bookmark]:
         return self._get_all()[0]
 
