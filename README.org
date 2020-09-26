@@ -1,6 +1,5 @@
-#+begin_src python :results drawer :exports results
-import export
-return export.make_parser().prog
+#+begin_src python :dir src :results drawer :exports results
+import instapexport.export as E; return E.make_parser().prog
 #+end_src
 
 #+RESULTS:
@@ -10,15 +9,16 @@ Export your personal Instapaper data: bookmarked articles and highlights.
 :end:
 
 * Setting up
-1. Clone *recursively*: =git clone --recursive https://github.com/karlicoss/instapexport=. This is important so Instapaper API submodule is cloned as well.
-2. =pip3 install --user -r requirements.txt=
-3. To use the API, you'd need to [[https://www.instapaper.com/main/request_oauth_consumer_token][request =oauth_id= and =oauth_secret=]] first
-4. Once you recieved them, use this to get =oauth_token= and =oauth_token_secret= (you only need to do it once): ~./export.py --login~
+1. The easiest way is =pip3 install --user git+https://github.com/karlicoss/instapexport=.
+
+   Alternatively, use =git clone --recursive=, or =git pull && git submodules update --init=. After that, you can use =pip3 install --editable=.
+2. To use the API, you'd need to [[https://www.instapaper.com/main/request_oauth_consumer_token][request =oauth_id= and =oauth_secret=]] first
+3. Once you recieved them, use this to get =oauth_token= and =oauth_token_secret= (you only need to do it once): ~./export.py --login~
  
 * Exporting
 
-#+begin_src python :results drawer :exports results 
-import export; return export.make_parser().epilog
+#+begin_src python :dir src :results drawer :exports results
+import instapexport.export as E; return E.make_parser().epilog
 #+end_src
 
 #+RESULTS:
@@ -37,43 +37,43 @@ Usage:
 
 After that, use:
 
-: ./export.py --secrets /path/to/secrets.py
+: python3 -m instapexport.export --secrets /path/to/secrets.py
 
 That way you type less and have control over where you keep your plaintext secrets.
 
 *Alternatively*, you can pass parameters directly, e.g.
 
-: ./export.py --oauth_id <oauth_id> --oauth_secret <oauth_secret> --oauth_token <oauth_token> --oauth_token_secret <oauth_token_secret>
+: python3 -m instapexport.export --oauth_id <oauth_id> --oauth_secret <oauth_secret> --oauth_token <oauth_token> --oauth_token_secret <oauth_token_secret>
 
 However, this is verbose and prone to leaking your keys/tokens/passwords in shell history.
 
-    
-You can also import ~export.py~ as a module and call ~get_json~ function directly to get raw JSON.
+
+You can also import ~instapexport.export~ as a module and call ~get_json~ function directly to get raw JSON.
 
 
 I *highly* recommend checking exported files at least once just to make sure they contain everything you expect from your export. If not, please feel free to ask or raise an issue!
-    
+
 :end:
 
-* Using data
+* Using the data
   
-#+begin_src python :results drawer :exports results 
-import dal_helper; return dal_helper.make_parser().epilog
+#+begin_src python :dir src  :results drawer :exports results
+import instapexport.exporthelpers.dal_helper as D; return D.make_parser().epilog
 #+end_src
 
 #+RESULTS:
 :results:
 
-You can use =dal.py= (stands for "Data Access/Abstraction Layer") to access your exported data, even offline.
+You can use =instapexport.dal= (stands for "Data Access/Abstraction Layer") to access your exported data, even offline.
 I elaborate on motivation behind it [[https://beepb00p.xyz/exports.html#dal][here]].
 
 - main usecase is to be imported as python module to allow for *programmatic access* to your data.
 
   You can find some inspiration in [[https://beepb00p.xyz/mypkg.html][=my.=]] package that I'm using as an API to all my personal data.
 
-- to test it against your export, simply run: ~./dal.py --source /path/to/export~
+- to test it against your export, simply run: ~python3 -m instapexport.dal --source /path/to/export~
 
-- you can also try it interactively: ~./dal.py --source /path/to/export --interactive~
+- you can also try it interactively: ~python3 -m instapexport.dal --source /path/to/export --interactive~
 
 :end:
 

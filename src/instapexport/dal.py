@@ -5,16 +5,10 @@ from datetime import datetime
 from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Optional
 import pytz
 
+from .exporthelpers import dal_helper, logging_helper
+from .exporthelpers.dal_helper import Json, PathIsh, Res
 
-if __name__ == '__main__':
-    # see dal_helper.setup for the explanation
-    import dal_helper # type: ignore[import]
-    dal_helper.fix_imports(globals())
-
-from . import dal_helper  # type: ignore[no-redef]
-from .dal_helper import Json, PathIsh, Res
-
-logger = dal_helper.logger('endoexport', level='debug')
+logger = logging_helper.logger('endoexport', level='debug')
 
 Bid = str
 Hid = str
