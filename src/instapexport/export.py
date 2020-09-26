@@ -3,9 +3,11 @@ import argparse
 import json
 from typing import List
 
-from export_helper import Json
+from .exporthelpers.export_helper import Json
 
-import modules.instapaper.instapaper as instapaper # type: ignore[import]
+# NOTE: uses custom version (has some changes that are not in upstream yet)
+# https://github.com/karlicoss/instapaper
+import instapaper # type: ignore[import]
 instapaper._API_VERSION_ = "api/1.1"
 # see https://github.com/rsgalloway/instapaper/issues/11
 
@@ -68,7 +70,7 @@ def main():
 
 
 def make_parser():
-    from export_helper import setup_parser, Parser
+    from .exporthelpers.export_helper import setup_parser, Parser
     parser = Parser("""
 Export your personal Instapaper data: bookmarked articles and highlights.
 """)
@@ -81,7 +83,7 @@ Export your personal Instapaper data: bookmarked articles and highlights.
             'oauth_token_secret',
         ],
         extra_usage='''
-You can also import ~export.py~ as a module and call ~get_json~ function directly to get raw JSON.
+You can also import ~instapexport.export~ as a module and call ~get_json~ function directly to get raw JSON.
 ''')
     parser.add_argument('--login', action='store_true', help='''
     Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
