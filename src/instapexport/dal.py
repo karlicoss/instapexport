@@ -6,7 +6,7 @@ from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Option
 import pytz
 
 from .exporthelpers import dal_helper, logging_helper
-from .exporthelpers.dal_helper import Json, PathIsh, Res
+from .exporthelpers.dal_helper import Json, PathIsh, Res, pathify
 
 logger = logging_helper.logger('endoexport', level='debug')
 
@@ -93,7 +93,8 @@ class Page(NamedTuple):
 
 class DAL:
     def __init__(self, sources: Sequence[PathIsh]) -> None:
-        self.sources = list(map(Path, sources))
+        self.sources = list(map(pathify, sources))
+
     # TODO assume that stuff only gets added, so we can be iterative?
 
     # TODO yield? again, my idea with simultaneous iterators fits well here..
