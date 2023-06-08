@@ -12,13 +12,13 @@ def main() -> None:
         package_data={pkg: ['py.typed']},
 
         install_requires=[
-            'pytz',
             # my version has some changes not in the upstream yet..
             'instapaper @ git+https://github.com/karlicoss/instapaper.git',
         ],
         extras_require={
             'testing': ['pytest'],
-            'linting': ['pytest', 'mypy', 'lxml'], # lxml for mypy coverage report
+            'linting': ['pytest', 'mypy', 'lxml'],  # lxml for mypy coverage report
+            'optional': ['orjson', 'colorlog', 'enlighten'],
         },
     )
 
