@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
+from datetime import datetime, timezone
 import json
-from pathlib import Path
-from datetime import datetime
-from typing import Any, Dict, NamedTuple, Sequence, Union, List, TypeVar, Optional
-import pytz
+from typing import Dict, NamedTuple, Sequence, List, Optional
 
 from .exporthelpers import dal_helper, logging_helper
-from .exporthelpers.dal_helper import Json, PathIsh, Res, pathify
+from .exporthelpers.dal_helper import Json, PathIsh, pathify, datetime_aware
 
-logger = logging_helper.logger('endoexport', level='debug')
+
+logger = logging_helper.makeLogger(__name__)
 
 Bid = str
 Hid = str
 
 
-def _make_dt(ts: float) -> datetime:
-    return pytz.utc.localize(datetime.utcfromtimestamp(ts))
+def _make_dt(ts: float) -> datetime_aware:
+    return datetime.fromtimestamp(ts, tz=timezone.utc)
 
 
 class Highlight(NamedTuple):
@@ -94,6 +93,7 @@ class Page(NamedTuple):
 class DAL:
     def __init__(self, sources: Sequence[PathIsh]) -> None:
         self.sources = list(map(pathify, sources))
+        self.enlighten = logging_helper.get_enlighten()
 
     # TODO assume that stuff only gets added, so we can be iterative?
 
@@ -108,8 +108,12 @@ class DAL:
         all_hls = {}
         all_bks = {}
 
-        # TODO not sure if necessary to sort here.. get_files handles this already
-        for f in sorted(self.sources):
+        pbar = logging_helper.get_enlighten().counter(total=len(self.sources), desc=f'{__name__}', unit='files')
+
+        for f in self.sources:
+            logger.info(f'{f} : processing...')
+            pbar.update()
+
             j = json.loads(f.read_text())
 
             hls: List[Json] = []
@@ -166,7 +170,6 @@ def demo(dao: DAL) -> None:
     print(f"Parsed {len(pages)} pages")
 
     from collections import Counter
-    from pprint import pprint
     common = Counter({(x.url, x.title): len(x.highlights) for x in pages}).most_common(10)
     print("10 most highlighed pages:")
     for (url, title), count in common:
