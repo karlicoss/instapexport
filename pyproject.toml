@@ -6,6 +6,7 @@ dependencies = [
     # instapaper api (needed for export only)
     # my version has some changes not in the upstream yet..
     "instapaper @ git+https://github.com/karlicoss/instapaper.git",
+    "tenacity",  # retrying api calls
 ]
 # TODO maybe split out DAL deps and export deps? might be nice
 
