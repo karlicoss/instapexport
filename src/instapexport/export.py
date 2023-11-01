@@ -1,14 +1,30 @@
 #!/usr/bin/env python3
 import json
+import logging
 from typing import List
 
 from .exporthelpers.export_helper import Json, setup_parser, Parser
+from .exporthelpers.logging_helper import make_logger
 
 # NOTE: uses custom version (has some changes that are not in upstream yet)
 # https://github.com/karlicoss/instapaper
 import instapaper  # type: ignore[import-untyped]
 instapaper._API_VERSION_ = "api/1.1"
 # see https://github.com/rsgalloway/instapaper/issues/11
+from tenacity import (
+    retry,
+    retry_if_exception_message,
+    wait_exponential,
+    stop_after_attempt,
+    before_sleep_log,
+)
+
+# for debugging HTTP calls of instapaper lib
+# import httplib2
+# httplib2.debuglevel = 4
+
+
+logger = make_logger(__name__)
 
 
 def get_json(
@@ -24,23 +40,32 @@ def get_json(
     api = instapaper.Instapaper(oauth_id, oauth_secret)
     api.login_with_token(oauth_token, oauth_token_secret)
 
-    user_folders = api.folders()
-    folders: List[str] = [
-        ## default, as per api docs
-        'unread',
-        'archive',
-        'starred',
-        ##
-        *(str(f['folder_id']) for f in user_folders),
-    ]
-    bookmarks = {}
-    for f in folders:
-        fbookmarks = api.bookmarks_raw(folder=f, limit=LIMIT, have=None)
-        bookmarks[f] = fbookmarks
-    return {
-        'folders': user_folders,
-        'bookmarks': bookmarks,
-    }
+    # very rarely, we get one off 504 Gateway Time-out, usually retrying immediately after works
+    @retry(
+        retry=retry_if_exception_message(match='.*504 Gateway Time-out.*'),
+        wait=wait_exponential(max=10),
+        stop=stop_after_attempt(5),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+    )
+    def query_api() -> Json:
+        user_folders = api.folders()
+        folders: List[str] = [
+            ## default, as per api docs
+            'unread',
+            'archive',
+            'starred',
+            ##
+            *(str(f['folder_id']) for f in user_folders),
+        ]
+        bookmarks = {}
+        for f in folders:
+            fbookmarks = api.bookmarks_raw(folder=f, limit=LIMIT, have=None)
+            bookmarks[f] = fbookmarks
+        return {
+            'folders': user_folders,
+            'bookmarks': bookmarks,
+        }
+    return query_api()
 
 
 def login() -> None:
