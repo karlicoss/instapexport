@@ -7,7 +7,7 @@ from .exporthelpers import dal_helper, logging_helper
 from .exporthelpers.dal_helper import Json, PathIsh, pathify, datetime_aware
 
 
-logger = logging_helper.makeLogger(__name__)
+logger = logging_helper.make_logger(__name__)
 
 Bid = str
 Hid = str
@@ -155,7 +155,7 @@ class DAL:
         pages_ = [
             Page(
                 bookmark=bks[page_bid],
-                highlights=list(sorted(page_hls, key=lambda b: b.dt))
+                highlights=list(sorted(page_hls, key=lambda b: b.dt)),
             )
             for page_bid, page_hls in page2hls.items()
         ]
@@ -170,6 +170,7 @@ def demo(dao: DAL) -> None:
     print(f"Parsed {len(pages)} pages")
 
     from collections import Counter
+
     common = Counter({(x.url, x.title): len(x.highlights) for x in pages}).most_common(10)
     print("10 most highlighed pages:")
     for (url, title), count in common:
