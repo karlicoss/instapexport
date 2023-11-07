@@ -13,7 +13,7 @@ instapaper._API_VERSION_ = "api/1.1"
 # see https://github.com/rsgalloway/instapaper/issues/11
 from tenacity import (
     retry,
-    retry_if_exception_message,
+    retry_if_exception,
     wait_exponential,
     stop_after_attempt,
     before_sleep_log,
@@ -42,7 +42,8 @@ def get_json(
 
     # very rarely, we get one off 504 Gateway Time-out, usually retrying immediately after works
     @retry(
-        retry=retry_if_exception_message(match='.*504 Gateway Time-out.*'),
+        # retry=retry_if_exception_message(match='.*504 Gateway Time-out.*')  # hmm this isn't working because it can't match multiline?
+        retry=retry_if_exception(predicate=lambda e: '504 Gateway Time-out' in str(e)),
         wait=wait_exponential(max=10),
         stop=stop_after_attempt(5),
         before_sleep=before_sleep_log(logger, logging.INFO),
@@ -65,6 +66,7 @@ def get_json(
             'folders': user_folders,
             'bookmarks': bookmarks,
         }
+
     return query_api()
 
 
