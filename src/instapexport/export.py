@@ -1,22 +1,23 @@
-#!/usr/bin/env python3
+from __future__ import annotations
+
 import json
 import logging
-from typing import List
-
-from .exporthelpers.export_helper import Json, setup_parser, Parser
-from .exporthelpers.logging_helper import make_logger
 
 # NOTE: uses custom version (has some changes that are not in upstream yet)
 # https://github.com/karlicoss/instapaper
 import instapaper  # type: ignore[import-untyped]
+
+from .exporthelpers.export_helper import Json, Parser, setup_parser
+from .exporthelpers.logging_helper import make_logger
+
 instapaper._API_VERSION_ = "api/1.1"
 # see https://github.com/rsgalloway/instapaper/issues/11
 from tenacity import (
+    before_sleep_log,
     retry,
     retry_if_exception,
-    wait_exponential,
     stop_after_attempt,
-    before_sleep_log,
+    wait_exponential,
 )
 
 # for debugging HTTP calls of instapaper lib
@@ -50,7 +51,7 @@ def get_json(
     )
     def query_api() -> Json:
         user_folders = api.folders()
-        folders: List[str] = [
+        folders: list[str] = [
             ## default, as per api docs
             'unread',
             'archive',
@@ -96,7 +97,7 @@ def main() -> None:
         login()
         return
 
-    j = get_json(**params)
+    j = get_json(**params)  # ty: ignore[missing-argument]
     js = json.dumps(j, indent=1, ensure_ascii=False, sort_keys=True)
     dumper(js)
 

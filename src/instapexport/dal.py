@@ -1,11 +1,13 @@
-#!/usr/bin/env python3
-from datetime import datetime, timezone
+from __future__ import annotations
+
 import json
-from typing import Dict, NamedTuple, Sequence, List, Optional
+from collections.abc import Sequence
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import NamedTuple, Optional
 
 from .exporthelpers import dal_helper, logging_helper
-from .exporthelpers.dal_helper import Json, PathIsh, pathify, datetime_aware
-
+from .exporthelpers.dal_helper import Json, datetime_aware, pathify
 
 logger = logging_helper.make_logger(__name__)
 
@@ -75,7 +77,7 @@ class Bookmark(NamedTuple):
 
 class Page(NamedTuple):
     bookmark: Bookmark
-    highlights: List[Highlight]
+    highlights: list[Highlight]
 
     @property
     def dt(self) -> datetime:
@@ -91,7 +93,7 @@ class Page(NamedTuple):
 
 
 class DAL:
-    def __init__(self, sources: Sequence[PathIsh]) -> None:
+    def __init__(self, sources: Sequence[Path | str]) -> None:
         self.sources = list(map(pathify, sources))
         self.enlighten = logging_helper.get_enlighten()
 
@@ -116,15 +118,15 @@ class DAL:
 
             j = json.loads(f.read_text())
 
-            hls: List[Json] = []
-            bks: List[Json] = []
+            hls: list[Json] = []
+            bks: list[Json] = []
             if 'highlights' in j:
                 # legacy format
                 hls.extend(j['highlights'])
                 bks.extend(j['bookmarks'])
             else:
                 # current format
-                for folder, b in j['bookmarks'].items():
+                for _folder, b in j['bookmarks'].items():  # noqa: PERF102
                     hls.extend(b['highlights'])
                     bks.extend(b['bookmarks'])
 
@@ -140,26 +142,26 @@ class DAL:
     # TODO support folders? I don't use them so let it be homework for other people..
 
     # TODO shit. should that be a list instead?
-    def bookmarks(self) -> Dict[Bid, Bookmark]:
+    def bookmarks(self) -> dict[Bid, Bookmark]:
         return self._get_all()[0]
 
-    def highlights(self) -> Dict[Hid, Highlight]:
+    def highlights(self) -> dict[Hid, Highlight]:
         return self._get_all()[1]
 
-    def pages(self) -> List[Page]:
+    def pages(self) -> list[Page]:
         bks, hls = self._get_all()
-        page2hls: Dict[Bid, List[Highlight]] = {bid: [] for bid in bks}
-        for hid, h in hls.items():
+        page2hls: dict[Bid, list[Highlight]] = {bid: [] for bid in bks}
+        for h in hls.values():
             page2hls[h.bid].append(h)
 
         pages_ = [
             Page(
                 bookmark=bks[page_bid],
-                highlights=list(sorted(page_hls, key=lambda b: b.dt)),
+                highlights=sorted(page_hls, key=lambda b: b.dt),
             )
             for page_bid, page_hls in page2hls.items()
         ]
-        return list(sorted(pages_, key=lambda p: p.dt))
+        return sorted(pages_, key=lambda p: p.dt)
 
 
 def demo(dao: DAL) -> None:
