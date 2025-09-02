@@ -4,7 +4,7 @@ import json
 from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 from .exporthelpers import dal_helper, logging_helper
 from .exporthelpers.dal_helper import Json, datetime_aware, pathify
@@ -41,7 +41,7 @@ class Highlight(NamedTuple):
         return self.raw['text']
 
     @property
-    def note(self) -> Optional[str]:
+    def note(self) -> str | None:
         return self.raw['note']
 
     @property

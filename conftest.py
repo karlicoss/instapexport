@@ -1,10 +1,10 @@
 # this is a hack to monkey patch pytest so it handles tests inside namespace packages without __init__.py properly
 # without it, pytest can't discover the package root for some reason
 # also see https://github.com/karlicoss/pytest_namespace_pkgs for more
+from __future__ import annotations
 
 import os
 import pathlib
-from typing import Optional
 
 import _pytest.main
 import _pytest.pathlib
@@ -22,7 +22,7 @@ namespace_pkg_dirs = [str(d) for d in root_dir.iterdir() if d.is_dir()]
 resolve_pkg_path_orig = _pytest.pathlib.resolve_package_path
 
 
-def resolve_package_path(path: pathlib.Path) -> Optional[pathlib.Path]:
+def resolve_package_path(path: pathlib.Path) -> pathlib.Path | None:
     result = path  # search from the test file upwards
     for parent in result.parents:
         if str(parent) in namespace_pkg_dirs:
