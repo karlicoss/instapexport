@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 
 # NOTE: uses custom version (has some changes that are not in upstream yet)
 # https://github.com/karlicoss/instapaper
@@ -71,18 +72,19 @@ def get_json(
     return query_api()
 
 
-def login() -> None:
-    print("NOTE: You'll need your username/password once in order to get oauth_token")
-    # fmt: off
-    oauth_id     = input('Your ouath_id: ')
-    oauth_secret = input('Your ouath_secret: ')
-    username     = input('Your username: ')
-    password     = input('Your password: ')
-    # fmt: on
+def login(*, oauth_id: str | None = None, oauth_secret: str | None = None, **kwargs) -> None:  # noqa: ARG001
+    print("NOTE: You'll need to enter you username/password (once) in order to get oauth_token", file=sys.stderr)
+    # if some api params were already passed, no need to ask for them again
+    if oauth_id is None:
+        oauth_id = input('Your oauth_id: ')
+    if oauth_secret is None:
+        oauth_secret = input('Your oauth_secret: ')
+    username = input('Your username: ')
+    password = input('Your password: ')
 
     api = instapaper.Instapaper(oauth_id, oauth_secret)
     odata = api.login(username, password)
-    print("Now paste this into your secrets file")
+    print("Now paste this into your secrets file", file=sys.stderr)
     print(odata)
 
 
@@ -94,7 +96,7 @@ def main() -> None:
     dumper = args.dumper
 
     if args.login:
-        login()
+        login(**params)
         return
 
     j = get_json(**params)  # ty: ignore[missing-argument]
@@ -117,16 +119,17 @@ Export your personal Instapaper data: bookmarked articles and highlights.
             'oauth_token_secret',
         ],
         extra_usage='''
-You can also import ~instapexport.export~ as a module and call ~get_json~ function directly to get raw JSON.
-''',
+You can also import `instapexport.export` as a module and call `get_json` function directly to get raw JSON.
+'''.lstrip(),
     )
     parser.add_argument(
         '--login',
         action='store_true',
         help='''
-    Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
-    https://www.instapaper.com/main/request_oauth_consumer_token
-    ''',
+Pass to FIXME.
+Note: OAUTH_ID/OAUTH_SECRET have to be requrested by email
+https://www.instapaper.com/main/request_oauth_consumer_token
+    '''.strip(),
     )
     return parser
 

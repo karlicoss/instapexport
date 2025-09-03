@@ -1,0 +1,127 @@
+---
+format:
+  gfm
+    # TODO hmm kinda annoying, can't put TOC after 'preamble'?
+    # toc: true
+    # toc-depth: 3
+editor:
+  render-on-save: true
+---
+
+```{python}
+#| echo: false
+from pathlib import Path
+[_project_src] = Path("src").iterdir()
+project_name = _project_src.name
+git_http_link = f"git+https://github.com/karlicoss/{project_name}"
+
+# uuh. suggested by this https://quarto.org/docs/computations/inline-code.html#markdown-output
+from IPython.display import Markdown
+# backticks conflict with inline quarto backticks?
+bt = lambda s: Markdown(f"`{s}`")
+```
+
+```{python}
+#| echo: false
+#| output: asis
+import importlib 
+E = importlib.import_module(f'{project_name}.export')
+print(E.make_parser().prog)
+```
+
+<!-- TODO WTF? without a comment it moves execution output under heading otherwise? -->
+
+# Installing
+## Basic install
+
+Install with pip:
+
+`{python} bt(f"pip3 install '{project_name}[export,dal,optional] @ {git_http_link}'")`
+
+The ['extras'](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-extras) in square brackets provide additional dependencies, feel free to omit some of them if you don't need it:
+
+- `export` is needed for [export functionality](#exporting)
+- `dal` is needed to [access exported data](#using-the-data)
+- `optional` is for nicer logging facilities and faster json processing
+
+See [`optional-dependencies`](pyproject.toml) section in `pyproject.toml` for more details.
+
+## Advanced install options
+
+- editable install
+
+  You'll need to clone the repository with submodules.
+
+  - use `git clone --recursive`, or `git pull && git submodules update --init`
+  - after that, you can use `pip3 install --editable`
+
+- run via `uvx`
+
+  This allows you to run instapexport without installing if you just want to quickly try it out. E.g.:
+
+  `{python} bt(f"uvx --from '{project_name}[export,dal,optional] @ {git_http_link}' python3 -m {project_name}.export ... ")`
+
+  It's a little awkward though since you can't install tools without 'executable scripts' with uv at the moment -- please let me know 
+
+# Exporting
+
+## Running export
+
+```{python}
+#| echo: false
+#| output: asis
+import importlib 
+E = importlib.import_module(f'{project_name}.export')
+print(E.make_parser().epilog)
+```
+
+## Setting up API parameters
+
+1. To use the API, you need to [request `oauth_id` and `oauth_secret`](https://www.instapaper.com/main/request_oauth_consumer_token) first.
+2. Once you retrieved them, use them to get `oauth_token` and `oauth_token_secret`: `{python} bt(f"python3 -m {project_name}.export --login")`
+
+   You'll only need this step once, after that you should be able to use the API without re-authenticating.
+3. Use the `oauth_token` and `oauth_token_secret` to set up `secrets.py` as mentioned above.
+
+# Using the data
+```{python}
+#| echo: false
+#| output: asis
+import importlib 
+D = importlib.import_module(f'{project_name}.exporthelpers.dal_helper')
+print(D.make_parser().epilog)
+```
+
+## Example output
+```
+Parsed 203 pages
+10 most highlighed pages:
+  41 https://www.wired.com/1995/06/xanadu/ "The Curse of Xanadu"
+  14 https://jborichevskiy.com/posts/digital-tools/ "Digital Tools I Wish Existed"
+  12 http://slatestarcodex.com/2017/08/07/contra-grant-on-exaggerated-differences/ "Contra Grant On Exaggerated Differences"
+  12 https://slatestarcodex.com/2019/06/04/book-review-the-secret-of-our-success/ "Book Review: The Secret Of Our Success"
+  10 https://intelligence.org/2013/12/13/aaronson/ "Scott Aaronson on Philosophical Progress - Machine Intelligence Research Institute"
+  10 http://www.thebioneer.com/nervous-system-training-muscle-fiber-recruitment-rate-coding-explained/ "Nervous System Training - Muscle Fiber Recruitment and Rate Coding Explained - The Bioneer"
+   9 https://srconstantin.wordpress.com/2016/06/06/nootropics/ "Nootropics"
+   9 https://blog.dropbox.com/topics/work-culture/-the-mind-at-work--guido-van-rossum-on-how-python-makes-thinking "The Mind at Work: Guido van Rossum on how Python makes thinking in code easier"
+   9 https://slatestarcodex.com/2019/12/11/acc-is-eating-meat-a-net-harm/ "[ACC] Is Eating Meat A Net Harm?"
+   9 https://beepb00p.xyz/my-data.html "What data on myself I collect and why? | Mildly entertainingᵝ"
+```
+
+# Contributing
+If you want to contribute/develop this project, check out [github actions](.github/workflows/main.yml) to see how the project is run/tested.
+
+Generally you should be able to run various checks via `tox`, e.g.
+
+`uv tool run --with tox-uv tox -e <check>`
+
+See the top of [tox.ini](tox.ini) for available checks.
+
+
+## Updating README
+
+This README is generated from a 'literate' Quarto [README.qmd](README.qmd) via the following command:
+
+`uv run --with=quarto-cli --with=jupyter quarto render README.qmd`
+
+If you want to correct something, feel free to simply update `README.md` though, I can reconcile the changes next time I regenerate it.
