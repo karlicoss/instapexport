@@ -11,7 +11,7 @@ import instapaper  # type: ignore[import-untyped]
 from .exporthelpers.export_helper import Json, Parser, setup_parser
 from .exporthelpers.logging_helper import make_logger
 
-instapaper._API_VERSION_ = "api/1.1"
+instapaper._API_VERSION_ = "api/1.1"  # ty: ignore[invalid-assignment]
 # see https://github.com/rsgalloway/instapaper/issues/11
 from tenacity import (
     before_sleep_log,
@@ -99,7 +99,7 @@ def main() -> None:
         login(**params)
         return
 
-    j = get_json(**params)  # ty: ignore[missing-argument]
+    j = get_json(**params)
     js = json.dumps(j, indent=1, ensure_ascii=False, sort_keys=True)
     dumper(js)
 
