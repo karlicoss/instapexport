@@ -46,11 +46,18 @@ testing = [
     "instapexport[dal,export,optional]",
 ]
 typecheck = [
-    { include-group = "testing" },
     "mypy",
     "lxml", # for mypy html coverage
     "ty>=0.0.13",
+
+    { include-group = "testing" },
 ]
+quarto = [
+    "quarto-cli",
+
+    "instapexport[dal,export,optional]",
+]
+
 
 
 [build-system]

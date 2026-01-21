@@ -43,7 +43,7 @@ See [`optional-dependencies`](pyproject.toml) section in
   `uvx --from 'instapexport[export,dal,optional] @ git+https://github.com/karlicoss/instapexport' python3 -m instapexport.export ...`
 
   It’s a little awkward though since you can’t install tools without
-  ‘executable scripts’ with uv at the moment – please let me know
+  ‘executable scripts’ with uv at the moment.
 
 # Exporting
 
@@ -136,16 +136,14 @@ run/tested.
 
 Generally you should be able to run various checks via `tox`, e.g.
 
-`uv tool run --with tox-uv tox -e <check>`
-
-See the top of [tox.ini](tox.ini) for available checks.
+`uv tool run --with tox-uv tox`
 
 ## Updating README
 
 This README is generated from a ‘literate’ Quarto
 [README.qmd](README.qmd) via the following command:
 
-`uv run --with=quarto-cli --with=jupyter quarto render README.qmd`
+`uv run --group=quarto render README.qmd`
 
 If you want to correct something, feel free to simply update `README.md`
 though, I can reconcile the changes next time I regenerate it.

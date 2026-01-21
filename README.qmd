@@ -5,6 +5,8 @@ format:
     # toc: true
     # toc-depth: 3
 editor:
+  # this is for VS code
+  # note that it only works for 'preview' mode, not for markdown rendering
   render-on-save: true
 ---
 
@@ -61,7 +63,7 @@ See [`optional-dependencies`](pyproject.toml) section in `pyproject.toml` for mo
 
   `{python} bt(f"uvx --from '{project_name}[export,dal,optional] @ {git_http_link}' python3 -m {project_name}.export ... ")`
 
-  It's a little awkward though since you can't install tools without 'executable scripts' with uv at the moment -- please let me know 
+  It's a little awkward though since you can't install tools without 'executable scripts' with uv at the moment.
 
 # Exporting
 
@@ -113,15 +115,12 @@ If you want to contribute/develop this project, check out [github actions](.gith
 
 Generally you should be able to run various checks via `tox`, e.g.
 
-`uv tool run --with tox-uv tox -e <check>`
-
-See the top of [tox.ini](tox.ini) for available checks.
-
+`uv tool run --with tox-uv tox`
 
 ## Updating README
 
 This README is generated from a 'literate' Quarto [README.qmd](README.qmd) via the following command:
 
-`uv run --with=quarto-cli --with=jupyter quarto render README.qmd`
+`uv run --group=quarto render README.qmd`
 
 If you want to correct something, feel free to simply update `README.md` though, I can reconcile the changes next time I regenerate it.
