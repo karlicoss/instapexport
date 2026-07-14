@@ -3,7 +3,7 @@
 Export your personal Instapaper data: bookmarked articles and
 highlights.
 
-<!-- TODO WTF? without a comment it moves execution output under heading otherwise? -->
+<!-- Keep this separator: Quarto otherwise moves the generated preamble below the following heading. -->
 
 # Installing
 
@@ -20,7 +20,7 @@ some of them if you don’t need it:
 
 - `export` is needed for [export functionality](#exporting)
 - `dal` is needed to [access exported data](#using-the-data)
-- `optional` is for nicer logging facilities and faster json processing
+- `optional` is for nicer logging facilities and faster JSON processing
 
 See [`optional-dependencies`](pyproject.toml) section in
 `pyproject.toml` for more details.
@@ -32,7 +32,7 @@ See [`optional-dependencies`](pyproject.toml) section in
   You’ll need to clone the repository with submodules.
 
   - use `git clone --recursive`, or
-    `git pull && git submodules update --init`
+    `git pull && git submodule update --init`
   - after that, you can use `pip3 install --editable`
 
 - run via `uvx`
@@ -76,7 +76,7 @@ You can also import `instapexport.export` as a module and call
 `get_json` function directly to get raw JSON.
 
 I **highly** recommend checking exported files at least once just to
-make sure they contain everything you expect from your export If they
+make sure they contain everything you expect from your export. If they
 don’t, please feel free to ask or raise an issue!
 
 ## Setting up API parameters
@@ -100,7 +100,7 @@ You can use `instapexport.dal` (stands for “Data Access/Abstraction
 Layer”) to access your exported data, even offline. I elaborate on
 motivation behind it [here](https://beepb00p.xyz/exports.html#dal).
 
-- main usecase is to be imported as python module to allow for
+- the main use case is importing it as a Python module for
   **programmatic access** to your data.
 
   You can find some inspiration in
@@ -110,13 +110,13 @@ motivation behind it [here](https://beepb00p.xyz/exports.html#dal).
 - to test it against your export, simply run:
   `python3 -m instapexport.dal --source /path/to/export`
 
-- you can also try it interactively in an Ipython shell:
+- you can also try it interactively in an IPython shell:
   `python3 -m instapexport.dal --source /path/to/export --interactive`
 
 ## Example output
 
     Parsed 203 pages
-    10 most highlighed pages:
+    10 most highlighted pages:
       41 https://www.wired.com/1995/06/xanadu/ "The Curse of Xanadu"
       14 https://jborichevskiy.com/posts/digital-tools/ "Digital Tools I Wish Existed"
       12 http://slatestarcodex.com/2017/08/07/contra-grant-on-exaggerated-differences/ "Contra Grant On Exaggerated Differences"
@@ -143,7 +143,7 @@ Generally you should be able to run various checks via `tox`, e.g.
 This README is generated from a ‘literate’ Quarto
 [README.qmd](README.qmd) via the following command:
 
-`uv run --group=quarto render README.qmd`
+`tox -e quarto`
 
 If you want to correct something, feel free to simply update `README.md`
 though, I can reconcile the changes next time I regenerate it.

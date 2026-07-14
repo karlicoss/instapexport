@@ -62,3 +62,11 @@ jobs:
     # explicit bash command is necessary for Windows CI runner, otherwise it thinks it's cmd...
     - run: bash .ci/run
 
+    - name: Check generated README
+      if: matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.12'
+      run: |
+        bash .ci/run -e quarto
+        if ! git diff --quiet -- README.md; then
+          echo "::warning file=README.md::README.md is out of date; run tox -e quarto and commit the result"
+          git diff -- README.md
+        fi
