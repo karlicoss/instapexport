@@ -6,10 +6,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
 
-from .exporthelpers import dal_helper, logging_helper
+from kloggy import get_logger
+from kloggy.progress import progress
+
+from .exporthelpers import dal_helper
 from .exporthelpers.dal_helper import Json, datetime_aware, pathify
 
-logger = logging_helper.make_logger(__name__)
+logger = get_logger(__name__)
 
 Bid = str
 Hid = str
@@ -95,7 +98,6 @@ class Page(NamedTuple):
 class DAL:
     def __init__(self, sources: Sequence[Path | str]) -> None:
         self.sources = list(map(pathify, sources))
-        self.enlighten = logging_helper.get_enlighten()
 
     # TODO assume that stuff only gets added, so we can be iterative?
 
@@ -110,12 +112,7 @@ class DAL:
         all_hls = {}
         all_bks = {}
 
-        pbar = logging_helper.get_enlighten().counter(total=len(self.sources), desc=f'{__name__}', unit='files')
-
-        for f in self.sources:
-            logger.info(f'{f} : processing...')
-            pbar.update()
-
+        for f in progress(self.sources, logger=logger, unit='files'):
             j = json.loads(f.read_text())
 
             hls: list[Json] = []

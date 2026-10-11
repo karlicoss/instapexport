@@ -7,9 +7,9 @@ import sys
 # NOTE: uses custom version (has some changes that are not in upstream yet)
 # https://github.com/karlicoss/instapaper
 import instapaper  # type: ignore[import-untyped]
+from kloggy import get_logger
 
 from .exporthelpers.export_helper import Json, Parser, setup_parser
-from .exporthelpers.logging_helper import make_logger
 
 instapaper._API_VERSION_ = "api/1.1"  # ty: ignore[invalid-assignment]
 # see https://github.com/rsgalloway/instapaper/issues/11
@@ -26,7 +26,7 @@ from tenacity import (
 # httplib2.debuglevel = 4
 
 
-logger = make_logger(__name__)
+logger = get_logger(__name__)
 
 
 def get_json(

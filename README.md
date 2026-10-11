@@ -20,7 +20,7 @@ some of them if you don’t need it:
 
 - `export` is needed for [export functionality](#exporting)
 - `dal` is needed to [access exported data](#using-the-data)
-- `optional` is for nicer logging facilities and faster JSON processing
+- `optional` is for faster JSON processing
 
 See [`optional-dependencies`](pyproject.toml) section in
 `pyproject.toml` for more details.
