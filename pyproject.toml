@@ -4,6 +4,7 @@ dynamic = ["version"]  # version is managed by build backend
 name = "instapexport"
 dependencies = [
     "instapexport[export]",  # TODO backwards compatibility -- remove later?
+    "kloggy",
 ]
 requires-python = ">=3.12"
 
@@ -32,7 +33,6 @@ export = [
 ]
 optional = [
     "orjson",  # faster json processing
-    "colorlog",
     "ijson",  # faster iterative json processing
 ]
 
