@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import sys
 
+import hpikit.cli.export as cli
+
 # NOTE: uses custom version (has some changes that are not in upstream yet)
 # https://github.com/karlicoss/instapaper
 import instapaper  # type: ignore[import-untyped]
+from hpikit.json import Json
 from kloggy import get_logger
-
-from .exporthelpers.export_helper import Json, Parser, setup_parser
 
 instapaper._API_VERSION_ = "api/1.1"  # ty: ignore[invalid-assignment]
 # see https://github.com/rsgalloway/instapaper/issues/11
@@ -92,8 +94,7 @@ def main() -> None:
     parser = make_parser()
     args = parser.parse_args()
 
-    params = args.params
-    dumper = args.dumper
+    params = cli.get_params(parser, args)
 
     if args.login:
         login(**params)
@@ -101,17 +102,14 @@ def main() -> None:
 
     j = get_json(**params)
     js = json.dumps(j, indent=1, ensure_ascii=False, sort_keys=True)
-    dumper(js)
+    cli.dump(js, path=args.path)
 
 
-def make_parser():
-    parser = Parser(
-        """
+def make_parser() -> argparse.ArgumentParser:
+    parser = cli.make_parser(
+        description="""
 Export your personal Instapaper data: bookmarked articles and highlights.
 """,
-    )
-    setup_parser(
-        parser=parser,
         params=[
             'oauth_id',
             'oauth_secret',

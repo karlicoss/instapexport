@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
 
+import hpikit.cli.dal as cli
+from hpikit.datetime import AwareDateTime, aware
+from hpikit.json import Json, loads
+from hpikit.paths import as_paths
 from kloggy import get_logger
 from kloggy.progress import progress
-
-from .exporthelpers import dal_helper
-from .exporthelpers.dal_helper import Json, datetime_aware, pathify
 
 logger = get_logger(__name__)
 
@@ -18,8 +18,8 @@ Bid = str
 Hid = str
 
 
-def _make_dt(ts: float) -> datetime_aware:
-    return datetime.fromtimestamp(ts, tz=UTC)
+def _make_dt(ts: float) -> AwareDateTime:
+    return aware(datetime.fromtimestamp(ts, tz=UTC))
 
 
 class Highlight(NamedTuple):
@@ -97,7 +97,7 @@ class Page(NamedTuple):
 
 class DAL:
     def __init__(self, sources: Sequence[Path | str]) -> None:
-        self.sources = list(map(pathify, sources))
+        self.sources = as_paths(sources)
 
     # TODO assume that stuff only gets added, so we can be iterative?
 
@@ -113,7 +113,7 @@ class DAL:
         all_bks = {}
 
         for f in progress(self.sources, logger=logger, unit='files'):
-            j = json.loads(f.read_text())
+            j = loads(f.read_bytes())
 
             hls: list[Json] = []
             bks: list[Json] = []
@@ -177,4 +177,4 @@ def demo(dao: DAL) -> None:
 
 
 if __name__ == '__main__':
-    dal_helper.main(DAL=DAL, demo=demo)
+    cli.main(DAL=DAL, demo=demo)

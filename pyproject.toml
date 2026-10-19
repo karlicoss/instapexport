@@ -3,8 +3,9 @@
 dynamic = ["version"]  # version is managed by build backend
 name = "instapexport"
 dependencies = [
-    "instapexport[export]",  # TODO backwards compatibility -- remove later?
+    "hpikit",
     "kloggy",
+    "instapexport[export]",  # TODO backwards compatibility -- remove later?
 ]
 requires-python = ">=3.12"
 
@@ -32,8 +33,8 @@ export = [
     "tenacity", # retrying api calls
 ]
 optional = [
-    "orjson",  # faster json processing
-    "ijson",  # faster iterative json processing
+    "hpikit[optional]", # faster JSON parsing and transparent compression
+    "kloggy[enlighten]",  # progress bars, shown when KLOGGY_PROGRESS is set, e.g. KLOGGY_PROGRESS=enlighten
 ]
 
 [dependency-groups]

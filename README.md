@@ -1,7 +1,6 @@
 
 
-Export your personal Instapaper data: bookmarked articles and
-highlights.
+Export your personal Instapaper data: bookmarked articles and highlights.
 
 <!-- Keep this separator: Quarto otherwise moves the generated preamble below the following heading. -->
 
@@ -13,37 +12,27 @@ Install with pip:
 
 `pip3 install 'instapexport[export,dal,optional] @ git+https://github.com/karlicoss/instapexport'`
 
-The
-[‘extras’](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-extras)
-in square brackets provide additional dependencies, feel free to omit
-some of them if you don’t need it:
+The [‘extras’](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-extras) in square brackets provide additional dependencies, feel free to omit some of them if you don’t need it:
 
 - `export` is needed for [export functionality](#exporting)
 - `dal` is needed to [access exported data](#using-the-data)
 - `optional` is for faster JSON processing
 
-See [`optional-dependencies`](pyproject.toml) section in
-`pyproject.toml` for more details.
+See [`optional-dependencies`](pyproject.toml) section in `pyproject.toml` for more details.
 
 ## Advanced install options
 
 - editable install
 
-  You’ll need to clone the repository with submodules.
-
-  - use `git clone --recursive`, or
-    `git pull && git submodule update --init`
-  - after that, you can use `pip3 install --editable`
+  Clone the repository and run `pip3 install --editable .`.
 
 - run via `uvx`
 
-  This allows you to run instapexport without installing if you just
-  want to quickly try it out. E.g.:
+  This allows you to run instapexport without installing if you just want to quickly try it out. E.g.:
 
   `uvx --from 'instapexport[export,dal,optional] @ git+https://github.com/karlicoss/instapexport' python3 -m instapexport.export ...`
 
-  It’s a little awkward though since you can’t install tools without
-  ‘executable scripts’ with uv at the moment.
+  It’s a little awkward though since you can’t install tools without ‘executable scripts’ with uv at the moment.
 
 # Exporting
 
@@ -62,56 +51,41 @@ After that, use:
 
     python3 -m instapexport.export --secrets /path/to/secrets.py
 
-That way you type less and have control over where you keep your
-plaintext secrets.
+That way you type less and have control over where you keep your plaintext secrets.
 
 **Alternatively**, you can pass parameters directly, e.g.
 
     python3 -m instapexport.export --oauth_id <oauth_id> --oauth_secret <oauth_secret> --oauth_token <oauth_token> --oauth_token_secret <oauth_token_secret>
 
-However, this is verbose and prone to leaking your keys/tokens/passwords
-in shell history.
+However, this is verbose and prone to leaking your keys/tokens/passwords in shell history.
 
-You can also import `instapexport.export` as a module and call
-`get_json` function directly to get raw JSON.
+You can also import `instapexport.export` as a module and call `get_json` function directly to get raw JSON.
 
-I **highly** recommend checking exported files at least once just to
-make sure they contain everything you expect from your export. If they
-don’t, please feel free to ask or raise an issue!
+I **highly** recommend checking exported files at least once just to make sure they contain everything you expect from your export.
+If they don’t, please feel free to ask or raise an issue!
 
 ## Setting up API parameters
 
-1.  To use the API, you need to [request `oauth_id` and
-    `oauth_secret`](https://www.instapaper.com/main/request_oauth_consumer_token)
-    first.
+1.  To use the API, you need to [request `oauth_id` and `oauth_secret`](https://www.instapaper.com/main/request_oauth_consumer_token) first.
 
-2.  Once you retrieved them, use them to get `oauth_token` and
-    `oauth_token_secret`: `python3 -m instapexport.export --login`
+2.  Once you retrieved them, use them to get `oauth_token` and `oauth_token_secret`: `python3 -m instapexport.export --login`
 
-    You’ll only need this step once, after that you should be able to
-    use the API without re-authenticating.
+    You’ll only need this step once, after that you should be able to use the API without re-authenticating.
 
-3.  Use the `oauth_token` and `oauth_token_secret` to set up
-    `secrets.py` as mentioned above.
+3.  Use the `oauth_token` and `oauth_token_secret` to set up `secrets.py` as mentioned above.
 
 # Using the data
 
-You can use `instapexport.dal` (stands for “Data Access/Abstraction
-Layer”) to access your exported data, even offline. I elaborate on
-motivation behind it [here](https://beepb00p.xyz/exports.html#dal).
+You can use this DAL (Data Access/Abstraction Layer) module to access your exported data, even offline.
+I elaborate on motivation behind it [here](https://beepb00p.xyz/exports.html#dal).
 
-- the main use case is importing it as a Python module for
-  **programmatic access** to your data.
+- the main use case is importing it as a Python module for **programmatic access** to your data.
 
-  You can find some inspiration in
-  [`my.`](https://beepb00p.xyz/mypkg.html) package that I’m using as an
-  API to all my personal data.
+  You can find some inspiration in [`my.`](https://beepb00p.xyz/mypkg.html) package that I’m using as an API to all my personal data.
 
-- to test it against your export, simply run:
-  `python3 -m instapexport.dal --source /path/to/export`
+- to test it against your export, simply run: `python3 -m instapexport.dal /path/to/export`
 
-- you can also try it interactively in an IPython shell:
-  `python3 -m instapexport.dal --source /path/to/export --interactive`
+- you can also try it interactively in an IPython shell: `python3 -m instapexport.dal /path/to/export --interactive`
 
 ## Example output
 
@@ -130,9 +104,7 @@ motivation behind it [here](https://beepb00p.xyz/exports.html#dal).
 
 # Contributing
 
-If you want to contribute/develop this project, check out [github
-actions](.github/workflows/main.yml) to see how the project is
-run/tested.
+If you want to contribute/develop this project, check out [github actions](.github/workflows/main.yml) to see how the project is run/tested.
 
 Generally you should be able to run various checks via `tox`, e.g.
 
@@ -140,10 +112,8 @@ Generally you should be able to run various checks via `tox`, e.g.
 
 ## Updating README
 
-This README is generated from a ‘literate’ Quarto
-[README.qmd](README.qmd) via the following command:
+This README is generated from a ‘literate’ Quarto [README.qmd](README.qmd) via the following command:
 
 `tox -e quarto`
 
-If you want to correct something, feel free to simply update `README.md`
-though, I can reconcile the changes next time I regenerate it.
+If you want to correct something, feel free to simply update `README.md` though, I can reconcile the changes next time I regenerate it.
